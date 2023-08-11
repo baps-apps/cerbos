@@ -1806,6 +1806,12 @@
         "success": {
           "type": "object",
           "properties": {}
+        },
+        "policyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "description": "Add/update policy response"

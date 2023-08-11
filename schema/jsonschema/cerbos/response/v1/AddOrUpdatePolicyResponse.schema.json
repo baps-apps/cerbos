@@ -12,6 +12,12 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "policyIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "success": {
       "$ref": "#/definitions/google.protobuf.Empty"
     }

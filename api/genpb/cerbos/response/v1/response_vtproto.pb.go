@@ -1757,6 +1757,15 @@ func (m *AddOrUpdatePolicyResponse) MarshalToSizedBufferVT(dAtA []byte) (int, er
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if len(m.PolicyIds) > 0 {
+		for iNdEx := len(m.PolicyIds) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.PolicyIds[iNdEx])
+			copy(dAtA[i:], m.PolicyIds[iNdEx])
+			i = encodeVarint(dAtA, i, uint64(len(m.PolicyIds[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
 	if m.Success != nil {
 		if vtmsg, ok := interface{}(m.Success).(interface {
 			MarshalToSizedBufferVT([]byte) (int, error)
@@ -3087,6 +3096,12 @@ func (m *AddOrUpdatePolicyResponse) SizeVT() (n int) {
 			l = proto.Size(m.Success)
 		}
 		n += 1 + l + sov(uint64(l))
+	}
+	if len(m.PolicyIds) > 0 {
+		for _, s := range m.PolicyIds {
+			l = len(s)
+			n += 1 + l + sov(uint64(l))
+		}
 	}
 	n += len(m.unknownFields)
 	return n
@@ -7554,6 +7569,38 @@ func (m *AddOrUpdatePolicyResponse) UnmarshalVT(dAtA []byte) error {
 					return err
 				}
 			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PolicyIds", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PolicyIds = append(m.PolicyIds, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

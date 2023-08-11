@@ -325,6 +325,7 @@ message AddOrUpdatePolicyResponse {
   };
 
   google.protobuf.Empty success = 1;
+  repeated string policy_ids = 2;
 }
 
 message ListAuditLogEntriesResponse {

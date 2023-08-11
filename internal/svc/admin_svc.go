@@ -86,7 +86,28 @@ func (cas *CerbosAdminService) AddOrUpdatePolicy(ctx context.Context, req *reque
 		return nil, status.Error(codes.Internal, "Failed to add/update policies")
 	}
 
-	return &responsev1.AddOrUpdatePolicyResponse{Success: &emptypb.Empty{}}, nil
+	// Compute policy FQNs
+	policyIds := make([]string, len(policies))
+	for _, p := range policies {
+		policyIds = append(policyIds, p.FQN)
+	}
+
+	// Remove empty strings
+	policyIds = removeEmptyStrings(policyIds)
+
+	return &responsev1.AddOrUpdatePolicyResponse{Success: &emptypb.Empty{}, PolicyIds: policyIds}, nil
+}
+
+func removeEmptyStrings(slice []string) []string {
+	var result []string
+
+	for _, str := range slice {
+		if str != "" {
+			result = append(result, str)
+		}
+	}
+
+	return result
 }
 
 func (cas *CerbosAdminService) AddOrUpdateSchema(ctx context.Context, req *requestv1.AddOrUpdateSchemaRequest) (*responsev1.AddOrUpdateSchemaResponse, error) {
