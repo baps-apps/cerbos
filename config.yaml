@@ -1,0 +1,15 @@
+---
+server:
+  httpListenAddr: ":3592"
+  grpcListenAddr: ":3593"
+  adminAPI:
+    enabled: true
+    adminCredentials:
+        passwordHash: JDJ5JDEwJEdEOVFzZDE2VVhoVkR0N2VkUFBVM09nalc0QnNZaC9xc2E4bS9mcUJJcEZXenp5OUpjMi91Cgo= # base64-encoded bcrypt hash of the password to use for authentication. (cerbosAdmin)
+        username: cerbos
+storage:
+  driver: "postgres"
+  postgres:
+    url: postgresql://abacuser:abacpwd@localhost:5430/abacdb?sslmode=disable&search_path=cerbos
+telemetry:
+  disabled: true

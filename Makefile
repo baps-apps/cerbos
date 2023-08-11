@@ -14,6 +14,10 @@ LDFLAGS += -X "github.com/cerbos/cerbos/internal/util.BuildDate=$(BUILD_DATE)"
 
 MOCK_QUIET ?= --quiet
 
+.PHONY: run
+run:
+	go run cmd/cerbos/main.go server --config config.yaml
+
 .PHONY: all
 all: clean build
 
