@@ -28,6 +28,7 @@ import (
 	schemav1 "github.com/cerbos/cerbos/api/genpb/cerbos/schema/v1"
 	svcv1 "github.com/cerbos/cerbos/api/genpb/cerbos/svc/v1"
 	"github.com/cerbos/cerbos/internal/audit"
+	"github.com/cerbos/cerbos/internal/namer"
 	"github.com/cerbos/cerbos/internal/policy"
 	"github.com/cerbos/cerbos/internal/storage"
 	"github.com/cerbos/cerbos/internal/storage/db"
@@ -86,10 +87,10 @@ func (cas *CerbosAdminService) AddOrUpdatePolicy(ctx context.Context, req *reque
 		return nil, status.Error(codes.Internal, "Failed to add/update policies")
 	}
 
-	// Compute policy FQNs
+	// Compute policy keys
 	policyIds := make([]string, len(policies))
 	for _, p := range policies {
-		policyIds = append(policyIds, p.FQN)
+		policyIds = append(policyIds, namer.PolicyKeyFromFQN(p.FQN))
 	}
 
 	// Remove empty strings
