@@ -27,7 +27,6 @@ const (
 	intersectFn                 = "intersect"
 	isSubsetFnDeprecated        = "is_subset"
 	isSubsetFn                  = "isSubset"
-	hasRoleFn                   = "hasRole"
 	nowFn                       = "now"
 	timeSinceFn                 = "timeSince"
 	IDFn                        = "id"
@@ -104,7 +103,6 @@ func (clib cerbosLib) CompileOptions() []cel.EnvOption {
 		)),
 		cel.Function(intersectFn, setOpFuncOverloads(intersectFn, intersect)...),
 		cel.Function(isSubsetFn, setCheckFuncOverloads(isSubsetFn, isSubset)...),
-		cel.Function(hasRoleFn, setCheckFuncOverloads(hasRoleFn, hasRole)...),
 		cel.Function(isSubsetFnDeprecated, setCheckFuncOverloads(isSubsetFnDeprecated, isSubset)...),
 		cel.Function(nowFn,
 			cel.Overload(nowFn,
@@ -240,11 +238,6 @@ func exceptList(lhs, rhs ref.Val) ref.Val {
 		}
 	}
 	return types.NewRefValList(types.DefaultTypeAdapter, items)
-}
-
-// TODO: Remove me
-func hasRole(lhs, rhs ref.Val) ref.Val {
-	return types.True
 }
 
 // isSubset returns true value if lhs (list) is a subset of rhs (list).
