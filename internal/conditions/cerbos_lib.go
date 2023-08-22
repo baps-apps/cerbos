@@ -27,6 +27,7 @@ const (
 	intersectFn                 = "intersect"
 	isSubsetFnDeprecated        = "is_subset"
 	isSubsetFn                  = "isSubset"
+	hasRoleFn                   = "hasRole"
 	nowFn                       = "now"
 	timeSinceFn                 = "timeSince"
 	IDFn                        = "id"
@@ -103,6 +104,7 @@ func (clib cerbosLib) CompileOptions() []cel.EnvOption {
 		)),
 		cel.Function(intersectFn, setOpFuncOverloads(intersectFn, intersect)...),
 		cel.Function(isSubsetFn, setCheckFuncOverloads(isSubsetFn, isSubset)...),
+		cel.Function(hasRoleFn, setCheckFuncOverloads(hasRoleFn, hasRole)...),
 		cel.Function(isSubsetFnDeprecated, setCheckFuncOverloads(isSubsetFnDeprecated, isSubset)...),
 		cel.Function(nowFn,
 			cel.Overload(nowFn,
