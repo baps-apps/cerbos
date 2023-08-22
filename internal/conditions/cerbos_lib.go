@@ -240,6 +240,11 @@ func exceptList(lhs, rhs ref.Val) ref.Val {
 	return types.NewRefValList(types.DefaultTypeAdapter, items)
 }
 
+// TODO: Remove me
+func hasRole(lhs, rhs ref.Val) ref.Val {
+	return types.True
+}
+
 // isSubset returns true value if lhs (list) is a subset of rhs (list).
 func isSubset(lhs, rhs ref.Val) ref.Val {
 	a, ok := lhs.(traits.Lister)
