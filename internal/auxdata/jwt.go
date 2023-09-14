@@ -36,10 +36,9 @@ var (
 )
 
 type jwtHelper struct {
-	keySets        map[string]keySet
-	cache          *cache.Cache[string, struct{}]
-	verify         bool
-	acceptableSkew time.Duration
+	keySets map[string]keySet
+	cache   *cache.Cache[string, struct{}]
+	verify  bool
 }
 
 func newJWTHelper(ctx context.Context, conf *JWTConf) *jwtHelper {
@@ -50,7 +49,6 @@ func newJWTHelper(ctx context.Context, conf *JWTConf) *jwtHelper {
 	}
 
 	jh.verify = !conf.DisableVerification
-	jh.acceptableSkew = conf.AcceptableTimeSkew
 
 	if jh.verify {
 		jh.keySets = make(map[string]keySet, len(conf.KeySets))
@@ -106,19 +104,15 @@ func (j *jwtHelper) extract(ctx context.Context, auxJWT *requestv1.AuxData_JWT) 
 	return j.doExtract(ctx, auxJWT, parseOpts, cacheKey)
 }
 
-func (j *jwtHelper) parseOptions(ctx context.Context, auxJWT *requestv1.AuxData_JWT, cacheKey string) (opts []jwt.ParseOption, _ error) {
-	if j.acceptableSkew > 0 {
-		opts = []jwt.ParseOption{jwt.WithAcceptableSkew(j.acceptableSkew)}
-	}
-
+func (j *jwtHelper) parseOptions(ctx context.Context, auxJWT *requestv1.AuxData_JWT, cacheKey string) ([]jwt.ParseOption, error) {
 	if !j.verify {
-		return append(opts, jwt.WithVerify(false), jwt.WithValidate(true)), nil
+		return []jwt.ParseOption{jwt.WithVerify(false), jwt.WithValidate(true)}, nil
 	}
 
 	// Check whether this token has already been verified
 	if cacheKey != "" {
 		if _, ok := j.cache.Get(cacheKey); ok {
-			return append(opts, jwt.WithVerify(false), jwt.WithValidate(true)), nil
+			return []jwt.ParseOption{jwt.WithVerify(false), jwt.WithValidate(true)}, nil
 		}
 	}
 
@@ -146,7 +140,7 @@ func (j *jwtHelper) parseOptions(ctx context.Context, auxJWT *requestv1.AuxData_
 		return nil, fmt.Errorf("failed to retrieve keyset: %w", err)
 	}
 
-	return append(opts, jwt.WithKeySet(jwks), jwt.WithValidate(true)), nil
+	return []jwt.ParseOption{jwt.WithKeySet(jwks), jwt.WithValidate(true)}, nil
 }
 
 func (j *jwtHelper) doExtract(ctx context.Context, auxJWT *requestv1.AuxData_JWT, parseOpts []jwt.ParseOption, cacheKey string) (map[string]*structpb.Value, error) {

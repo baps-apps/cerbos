@@ -5,16 +5,12 @@ package auxdata
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	enginev1 "github.com/cerbos/cerbos/api/genpb/cerbos/engine/v1"
 	requestv1 "github.com/cerbos/cerbos/api/genpb/cerbos/request/v1"
 	"github.com/cerbos/cerbos/internal/config"
 	"github.com/cerbos/cerbos/internal/observability/tracing"
 )
-
-var ErrFailedToExtractJWT = errors.New("failed to extract JWT")
 
 type AuxData struct {
 	jwt *jwtHelper
@@ -48,7 +44,7 @@ func (ad *AuxData) Extract(ctx context.Context, adProto *requestv1.AuxData) (*en
 
 	jwtPB, err := ad.jwt.extract(ctx, adProto.Jwt)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrFailedToExtractJWT, err)
+		return nil, err
 	}
 
 	return &enginev1.AuxData{Jwt: jwtPB}, nil

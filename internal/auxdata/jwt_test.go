@@ -116,7 +116,6 @@ func TestExtract_MultipleKeySets(t *testing.T) {
 	require.NoError(t, err)
 
 	conf := &JWTConf{
-		AcceptableTimeSkew: 1 * time.Minute,
 		KeySets: []JWTKeySet{
 			{
 				ID:     "remote",
@@ -137,51 +136,45 @@ func TestExtract_MultipleKeySets(t *testing.T) {
 	t.Cleanup(cancelFn)
 
 	jh := newJWTHelper(ctx, conf)
+	expiry := time.Now().Add(1 * time.Hour)
 
-	testCases := []struct {
-		name   string
-		expiry time.Time
-		valid  bool
+	tokens := []struct {
+		token string
+		valid bool
 	}{
 		{
-			name:   "Valid",
-			expiry: time.Now().Add(1 * time.Hour),
-			valid:  true,
+			token: mkSignedToken(t, expiry),
+			valid: true,
 		},
 		{
-			name:   "ValidWithinSkew",
-			expiry: time.Now().Add(-2 * time.Second),
-			valid:  true,
-		},
-		{
-			name:   "ExpiredJustBeyondSkew",
-			expiry: time.Now().Add(-61 * time.Second),
-			valid:  false,
-		},
-		{
-			name:   "Expired",
-			expiry: time.Now().Add(-1 * time.Hour),
-			valid:  false,
+			token: mkSignedToken(t, time.Now().Add(-1*time.Hour)),
+			valid: false,
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
+	want := mkExpectedTokenData(t, expiry)
+
+	for _, token := range tokens {
+		tok := token
 		for _, keySetID := range []string{"remote", "local_file", "local_data"} {
 			ksID := keySetID
-			t.Run(fmt.Sprintf("%s/%s", tc.name, ksID), func(t *testing.T) {
+			validOrInvalid := "invalid"
+			if tok.valid {
+				validOrInvalid = "valid"
+			}
+
+			t.Run(fmt.Sprintf("%s/%s", validOrInvalid, ksID), func(t *testing.T) {
 				input := &requestv1.AuxData_JWT{
-					Token:    mkSignedToken(t, tc.expiry),
+					Token:    tok.token,
 					KeySetId: ksID,
 				}
 
 				have, err := jh.extract(context.Background(), input)
-				if !tc.valid {
+				if !token.valid {
 					require.Error(t, err)
 					return
 				}
 
-				want := mkExpectedTokenData(t, tc.expiry)
 				require.NoError(t, err)
 				require.NotNil(t, have)
 				require.Empty(t, cmp.Diff(want, have, protocmp.Transform()))
@@ -222,7 +215,6 @@ func TestExtract_SingleKeySet(t *testing.T) {
 	keysDir := test.PathToDir(t, "auxdata")
 
 	conf := &JWTConf{
-		AcceptableTimeSkew: 1 * time.Minute,
 		KeySets: []JWTKeySet{
 			{
 				ID:    "local_file",
@@ -235,39 +227,38 @@ func TestExtract_SingleKeySet(t *testing.T) {
 	t.Cleanup(cancelFn)
 
 	jh := newJWTHelper(ctx, conf)
+	expiry := time.Now().Add(1 * time.Hour)
 
-	testCases := []struct {
-		name   string
-		valid  bool
-		expiry time.Time
+	tokens := []struct {
+		token string
+		valid bool
 	}{
 		{
-			name:   "Valid",
-			expiry: time.Now().Add(1 * time.Hour),
-			valid:  true,
+			token: mkSignedToken(t, expiry),
+			valid: true,
 		},
 		{
-			name:   "ValidWithinSkew",
-			expiry: time.Now().Add(-2 * time.Second),
-			valid:  true,
-		},
-		{
-			name:   "Expired",
-			expiry: time.Now().Add(-1 * time.Hour),
-			valid:  false,
+			token: mkSignedToken(t, time.Now().Add(-1*time.Hour)),
+			valid: false,
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			want := mkExpectedTokenData(t, tc.expiry)
+	want := mkExpectedTokenData(t, expiry)
+
+	for _, token := range tokens {
+		tok := token
+		validOrInvalid := "invalid"
+		if tok.valid {
+			validOrInvalid = "valid"
+		}
+
+		t.Run(validOrInvalid, func(t *testing.T) {
 			input := &requestv1.AuxData_JWT{
-				Token: mkSignedToken(t, tc.expiry),
+				Token: tok.token,
 			}
 
 			have, err := jh.extract(context.Background(), input)
-			if !tc.valid {
+			if !token.valid {
 				require.Error(t, err)
 				return
 			}
@@ -285,28 +276,30 @@ func TestExtract_NoKeySets(t *testing.T) {
 
 	jh := newJWTHelper(ctx, nil)
 
-	testCases := []struct {
-		name   string
-		expiry time.Time
-		valid  bool
+	tokens := []struct {
+		token string
+		valid bool
 	}{
 		{
-			name:   "Valid",
-			expiry: time.Now().Add(1 * time.Hour),
-			valid:  true,
+			token: mkSignedToken(t, time.Now().Add(1*time.Hour)),
+			valid: true,
 		},
 		{
-			name:   "Expired",
-			expiry: time.Now().Add(-1 * time.Hour),
-			valid:  false,
+			token: mkSignedToken(t, time.Now().Add(-1*time.Hour)),
+			valid: false,
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
+	for _, token := range tokens {
+		tok := token
+		validOrInvalid := "invalid"
+		if tok.valid {
+			validOrInvalid = "valid"
+		}
+
+		t.Run(validOrInvalid, func(t *testing.T) {
 			input := &requestv1.AuxData_JWT{
-				Token: mkSignedToken(t, tc.expiry),
+				Token: tok.token,
 			}
 
 			_, err := jh.extract(context.Background(), input)

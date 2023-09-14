@@ -5,7 +5,6 @@ package auxdata_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -117,27 +116,6 @@ func TestConfigValidate(t *testing.T) {
 							{"id": "foo", "remote": map[string]any{"url": "https://domain.tld/.well-known/foo.jwks"}},
 							{"id": "bar", "local": map[string]any{"data": "", "file": ""}},
 						},
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "positive acceptableTimeSkew",
-			conf: map[string]any{
-				"auxData": map[string]any{
-					"jwt": map[string]any{
-						"acceptableTimeSkew": 1 * time.Minute,
-					},
-				},
-			},
-		},
-		{
-			name: "negative acceptableTimeSkew",
-			conf: map[string]any{
-				"auxData": map[string]any{
-					"jwt": map[string]any{
-						"acceptableTimeSkew": -1 * time.Minute,
 					},
 				},
 			},
